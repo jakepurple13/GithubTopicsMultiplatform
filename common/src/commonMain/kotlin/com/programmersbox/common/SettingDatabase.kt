@@ -11,11 +11,10 @@ import io.realm.kotlin.types.RealmObject
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
-internal class SettingInformation : RealmObject {
+class SettingInformation : RealmObject {
     var currentTopics: RealmList<String> = realmListOf()
     var topicList: RealmList<String> = realmListOf()
     var isDarkMode: Boolean = true
@@ -23,17 +22,21 @@ internal class SettingInformation : RealmObject {
     var closeOnExit: Boolean = false
 }
 
-public class Database {
-    val realm by lazy {
-        Realm.open(
-            RealmConfiguration.Builder(setOf(SettingInformation::class, Favorites::class))
-                .schemaVersion(3)
-                .migration(AutomaticSchemaMigration { })
-                .build()
+class Database {
+    val realm = Realm.open(
+        RealmConfiguration.Builder(
+            schema = setOf(
+                SettingInformation::class,
+                Favorites::class
+            )
         )
-    }
+            .schemaVersion(1)
+            .migration(AutomaticSchemaMigration { })
+            .build()
+    )
 
-    val settingInformation = realm.initDbBlocking { SettingInformation() }
+    val settingInformation = realm
+        .initDbBlocking { SettingInformation() }
         .asFlow()
         .mapNotNull { it.obj }
 

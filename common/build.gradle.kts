@@ -1,12 +1,10 @@
-import org.gradle.api.internal.artifacts.dependencies.DefaultExternalModuleDependency
-
 plugins {
     kotlin("multiplatform")
     id("org.jetbrains.compose")
     id("com.android.library")
     kotlin("native.cocoapods")
-    id("io.realm.kotlin")
-    kotlin("kapt")
+    id("io.realm.kotlin") version "1.10.2"
+    //kotlin("kapt")
     id("kotlinx-serialization")
 }
 
@@ -25,7 +23,7 @@ kotlin {
     }
     jvm("desktop") {
         compilations.all {
-            kotlinOptions.jvmTarget = "11"
+            kotlinOptions.jvmTarget = "17"
         }
     }
     ios()
@@ -59,7 +57,7 @@ kotlin {
                 api("io.ktor:ktor-client-logging:$ktorVersion")
                 api("org.ocpsoft.prettytime:prettytime:5.0.2.Final")
                 api("media.kamel:kamel-image:0.7.1")
-                api("io.realm.kotlin:library-base:1.10.0")
+                api("io.realm.kotlin:library-base:1.10.2")
                 val datastore = "1.1.0-alpha04"
                 api("androidx.datastore:datastore-core:$datastore")
                 api("androidx.datastore:datastore-preferences-core:$datastore")
@@ -103,13 +101,13 @@ kotlin {
                 api("io.noties.markwon:syntax-highlight:$markwonVersion") {
                     exclude("org.jetbrains", "annotations-java5")
                 }
-                configurations["kapt"].dependencies.add(
+                /*configurations["kapt"].dependencies.add(
                     DefaultExternalModuleDependency(
                         "io.noties",
                         "prism4j-bundler",
                         "2.0.0"
                     )
-                )
+                )*/
 
                 api("pl.droidsonroids.gif:android-gif-drawable:1.2.25")
             }
@@ -122,7 +120,7 @@ kotlin {
                 api("io.ktor:ktor-client-okhttp:$ktorVersion")
                 api("org.jetbrains.kotlinx:kotlinx-html-jvm:0.8.0")
                 api("me.friwi:jcefmaven:108.4.13")
-                api("com.github.Dansoftowner:jSystemThemeDetector:3.6")
+                api("com.github.Dansoftowner:jSystemThemeDetector:3.8")
             }
         }
 

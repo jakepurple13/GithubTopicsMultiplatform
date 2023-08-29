@@ -1,6 +1,4 @@
-import org.jetbrains.compose.compose
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("multiplatform")
@@ -13,9 +11,12 @@ version = "1.0-SNAPSHOT"
 kotlin {
     jvm {
         compilations.all {
-            kotlinOptions.jvmTarget = "11"
+            kotlinOptions.jvmTarget = "17"
         }
         withJava()
+    }
+    kotlin {
+        jvmToolchain(17)
     }
     sourceSets {
         val jvmMain by getting {
@@ -30,11 +31,36 @@ kotlin {
 
 compose.desktop {
     application {
+        args += listOf(
+            "--add-opens java.desktop/sun.awt=ALL-UNNAMED",
+            "--add-opens java.desktop/sun.lwawt=ALL-UNNAMED",
+            "--add-opens java.desktop/sun.lwawt.macosx=ALL-UNNAMED"
+        )
+
+        jvmArgs += listOf(
+            "--add-opens java.desktop/sun.awt=ALL-UNNAMED",
+            "--add-opens java.desktop/sun.lwawt=ALL-UNNAMED",
+            "--add-opens java.desktop/sun.lwawt.macosx=ALL-UNNAMED"
+        )
         mainClass = "MainKt"
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "common"
+            includeAllModules = true
+            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Exe)
+            packageName = "GitHub Topics"
             packageVersion = "1.0.0"
+            appResourcesRootDir.set(project.layout.projectDirectory.dir("resources"))
+            fun iconFile(extension: String) = project.file("src/jvmMain/resources/github_logo.$extension")
+            macOS {
+                iconFile.set(iconFile("icns"))
+            }
+            windows {
+                iconFile.set(iconFile("ico"))
+                dirChooser = true
+                console = true
+            }
+            linux {
+                iconFile.set(iconFile("png"))
+            }
         }
     }
 }

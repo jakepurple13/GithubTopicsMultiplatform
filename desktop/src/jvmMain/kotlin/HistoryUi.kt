@@ -123,11 +123,15 @@ fun HistoryItem(
     ) {
         TopicItem(
             item = item,
-            favoritesVM = favoritesVM,
             savedTopics = emptyList(),
             currentTopics = emptyList(),
             onCardClick = onCardClick,
             onTopicClick = {},
+            isFavorite = favoritesVM.items.any { t -> t.htmlUrl == item.htmlUrl },
+            onFavoriteClick = {
+                if (it) favoritesVM.removeFavorite(item)
+                else favoritesVM.addFavorite(item)
+            },
             modifier = modifier
         )
     }

@@ -1,3 +1,5 @@
+@file:Suppress("INLINE_FROM_HIGHER_PLATFORM")
+
 package com.programmersbox.common
 
 import androidx.compose.animation.AnimatedVisibility
@@ -28,9 +30,10 @@ import com.programmersbox.common.viewmodels.FavoritesViewModel
 import com.programmersbox.common.viewmodels.RepoViewModel
 import com.programmersbox.common.viewmodels.TopicViewModel
 import kotlinx.coroutines.launch
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import moe.tlaster.precompose.navigation.*
+import moe.tlaster.precompose.navigation.NavHost
+import moe.tlaster.precompose.navigation.Navigator
+import moe.tlaster.precompose.navigation.path
+import moe.tlaster.precompose.navigation.rememberNavigator
 import moe.tlaster.precompose.viewmodel.viewModel
 
 @Composable
@@ -85,7 +88,6 @@ internal fun App(
 
             scene(
                 Screen.RepoReadMe.route + "/{topic}",
-                swipeProperties = SwipeProperties()
             ) { backStack ->
                 GithubRepo(
                     vm = viewModel {

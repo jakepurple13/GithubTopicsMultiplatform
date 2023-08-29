@@ -23,52 +23,44 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.*
-import com.jthemedetecor.OsThemeDetector
+import androidx.compose.ui.window.FrameWindowScope
+import androidx.compose.ui.window.MenuBar
+import androidx.compose.ui.window.Tray
+import androidx.compose.ui.window.application
 import com.programmersbox.common.*
 import com.programmersbox.common.components.IconsButton
 import com.programmersbox.common.viewmodels.FavoritesViewModel
 import com.programmersbox.common.viewmodels.RepoViewModel
 import com.programmersbox.common.viewmodels.TopicViewModel
-import io.realm.kotlin.ext.asFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import org.jetbrains.skiko.OS
 import org.jetbrains.skiko.hostOs
 import java.awt.Toolkit
 import java.awt.datatransfer.Clipboard
 import java.awt.datatransfer.StringSelection
 
-fun main() = application {
-    Window(onCloseRequest = ::exitApplication) {
-        MaterialTheme(colorScheme = if (isSystemInDarkTheme()) darkColorScheme() else lightColorScheme()) {
-            UIShow()
-        }
-    }
-}
+fun main() = mains()
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 fun mains() {
-    val osThemeDetector = OsThemeDetector.getDetector()
+    val db = Database()
+    val closeOnExit = db.settingInformation
+        .map { it.closeOnExit }
+        .distinctUntilChanged()
 
     application {
         val vm = remember { AppViewModel() }
         val scope = rememberCoroutineScope()
-        val favoritesVM = remember { FavoritesViewModel() }
-        val topicViewModel = remember { TopicViewModel(scope, s) }
+        val favoritesVM = remember { FavoritesViewModel(db) }
+        val topicViewModel = remember { TopicViewModel(db.settingInformation) }
         var showThemeSelector by remember { mutableStateOf(false) }
         val canCloseOnExit by closeOnExit.collectAsState(false)
         val snackbarHostState = remember { SnackbarHostState() }
 
-        Theme(
-            themeColors = themeColors,
-            isDarkMode = isDarkMode,
-            appActions = AppActions(
+        CompositionLocalProvider(
+            LocalAppActions provides AppActions(
                 onCardClick = vm::newTab,
                 onNewTabOpen = vm::newTabAndOpen,
                 onNewWindow = vm.repoWindows::add,
@@ -80,13 +72,12 @@ fun mains() {
                     scope.launch { snackbarHostState.showSnackbar("Copied") }
                 },
                 onSettingsClick = { showThemeSelector = true },
-                showLibrariesUsed = { showLibrariesUsed = true },
                 showFavorites = { vm.selectTab(0) }
             )
         ) {
             Tray(
                 icon = painterResource(
-                    if (osThemeDetector.isDark) "github_mark_logo_light.png"
+                    if (isSystemInDarkTheme()) "github_mark_logo_light.png"
                     else "github_mark_logo.png"
                 ),
                 onAction = { vm.showTopicWindow = true },
@@ -133,8 +124,6 @@ fun mains() {
                 snackbarHostState = snackbarHostState,
                 frameWindowScope = {
                     MenuOptions(
-                        isDarkMode = isDarkMode,
-                        onModeChange = { scope.launch { db.changeMode(it) } },
                         onShowSettings = { showThemeSelector = true },
                         refresh = { scope.launch { topicViewModel.refresh() } },
                         previousTab = vm::previousTab,
@@ -227,7 +216,7 @@ fun mains() {
                             is Tabs.PinnedTab<TabType> -> {
                                 when ((tab.data as TabType.Pinned).index) {
                                     0 -> FavoritesUi(favoritesVM) { vm.selectTab(0) }
-                                    1 -> App(topicViewModel, favoritesVM)
+                                    1 -> TopicDrawerLocation(topicViewModel, favoritesVM)
                                 }
                             }
 

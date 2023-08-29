@@ -1,5 +1,7 @@
 package com.programmersbox.common
 
+import androidx.compose.runtime.Immutable
+
 @Immutable
 data class AppActions(
     val onCardClick: (GitHubTopic) -> Unit = {},

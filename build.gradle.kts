@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.plugin.extraProperties
-
 group = "com.programmersbox"
 version = "1.0-SNAPSHOT"
 
@@ -10,12 +8,6 @@ allprojects {
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
         maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots") }
         maven(url = "https://jitpack.io")
-    }
-}
-
-buildscript {
-    dependencies {
-        classpath("io.realm.kotlin:gradle-plugin:1.10.0")
     }
 }
 
